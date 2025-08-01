@@ -145,6 +145,8 @@ def create_short_forecast(input_file=FORECAST_FILE, output_file=SHORT_FORECAST_F
         value_night = forecast_data.get(night_key)
         result[base_label + "_noc"] = value_night if value_night else "Brak danych"
 
+    full_path = os.path.abspath(output_file)
+    print(f"Zapisuję plik forecast do: {full_path}")
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
 
