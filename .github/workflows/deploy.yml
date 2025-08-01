@@ -26,16 +26,10 @@ jobs:
       - name: Run forecast script
         run: python forecast.py
 
-      - name: Show forecast_ha.json
+      - name: Debug output
         run: |
           echo "== Content of public/forecast_ha.json =="
-          cat public/forecast_ha.json || echo "forecast_ha.json not found!"
-
-
-      - name: Prepare public directory
-        run: |
-          mkdir -p public
-          cp forecast_ha.json public/
+          cat public/forecast_ha.json || echo "Plik nie znaleziony"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
