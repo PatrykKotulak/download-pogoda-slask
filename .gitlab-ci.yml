@@ -1,0 +1,16 @@
+image: python:3.12
+
+before_script:
+  - pip install -r requirements.txt
+  - playwright install
+
+pages:
+  script:
+    - python forecast.py
+    - mkdir public
+    - cp forecast_ha.json public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - main  # lub master, zależnie od gałęzi
