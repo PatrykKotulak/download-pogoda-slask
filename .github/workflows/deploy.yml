@@ -26,12 +26,11 @@ jobs:
       - name: Run forecast script
         run: python forecast.py
 
-      - name: Debug file presence
+      - name: Show forecast_ha.json
         run: |
-          echo "== Current directory =="
-          ls -la
-          echo "== Content of forecast_ha.json =="
-          cat forecast_ha.json || echo "forecast_ha.json not found!"
+          echo "== Content of public/forecast_ha.json =="
+          cat public/forecast_ha.json || echo "forecast_ha.json not found!"
+
 
       - name: Prepare public directory
         run: |
