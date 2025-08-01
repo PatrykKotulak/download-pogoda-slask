@@ -21,12 +21,12 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          playwright install
+          playwright install chromium
 
       - name: Run forecast script
         run: python forecast.py
 
-      - name: Prepare public folder
+      - name: Copy forecast to public directory
         run: |
           mkdir -p public
           cp forecast_ha.json public/
