@@ -148,12 +148,17 @@ def create_short_forecast(input_file=FORECAST_FILE, output_file=SHORT_FORECAST_F
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
 
-# Główne wywołanie
-if __name__ == "__main__":
-    main_url = "https://pogodadlaslaska.pl/blog/prognoza-tygodniowa/"
-    article_url = get_first_button_link(main_url)
-    if article_url:
-        forecast_data = extract_forecasts_by_date(article_url)
-        if forecast_data:
-            save_to_json(forecast_data)
-            create_short_forecast()
+
+
+# main
+
+main_url = "https://pogodadlaslaska.pl/blog/prognoza-tygodniowa/"
+article_url = get_first_button_link(main_url)
+if article_url:
+    forecast_data = extract_forecasts_by_date(article_url)
+    if forecast_data:
+        save_to_json(forecast_data)
+
+# Uwaga: ZAWSZE generuj skrócony forecast z pliku (również jeśli nie było nowych danych)
+create_short_forecast()
+
