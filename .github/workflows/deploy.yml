@@ -1,16 +1,38 @@
-image: python:3.12
+name: Deploy Forecast to GitHub Pages
 
-before_script:
-  - pip install -r requirements.txt
-  - playwright install
+on:
+  push:
+    branches:
+      - main
 
-pages:
-  script:
-    - python forecast.py
-    - mkdir public
-    - cp forecast_ha.json public/
-  artifacts:
-    paths:
-      - public
-  only:
-    - main  # lub master, zależnie od gałęzi
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install
+
+      - name: Run forecast script
+        run: python forecast.py
+
+      - name: Prepare public folder
+        run: |
+          mkdir -p public
+          cp forecast_ha.json public/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
