@@ -5,9 +5,9 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 5 * * *'   # 07:00 Europe/Warsaw
+    - cron: '0 4 * * *'   # 06:00 Europe/Warsaw
     - cron: '0 19 * * *'  # 21:00 Europe/Warsaw
-    - cron: '30 20 * * *' # 22:30 Europe/Warsaw
+    - cron: '0 20 * * *' # 22:00 Europe/Warsaw
 
 jobs:
   build:
