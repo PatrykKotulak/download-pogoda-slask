@@ -7,15 +7,21 @@ on:
   schedule:
     - cron: '0 4 * * *'   # 06:00 Europe/Warsaw
     - cron: '0 19 * * *'  # 21:00 Europe/Warsaw
-    - cron: '0 20 * * *' # 22:00 Europe/Warsaw
+    - cron: '30 20 * * *' # 22:30 Europe/Warsaw
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (main branch)
         uses: actions/checkout@v3
+
+      - name: Fetch forecast.json from gh-pages if it exists
+        run: |
+          git fetch origin gh-pages
+          mkdir -p public
+          git show origin/gh-pages:forecast.json > forecast.json || echo "{}" > forecast.json
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
@@ -34,6 +40,8 @@ jobs:
         run: |
           echo "== Content of public/forecast_ha.json =="
           cat public/forecast_ha.json || echo "Plik nie znaleziony"
+          echo "== Content of public/forecast.json =="
+          cat public/forecast.json || echo "Plik nie znaleziony"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
