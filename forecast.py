@@ -92,7 +92,7 @@ def save_to_json(new_data, filename=FORECAST_FILE):
     poland = pytz.timezone("Europe/Warsaw")
     now = datetime.now(poland)
     today = now.date()
-    after_21 = now.time() >= time(21, 0)
+    after_21 = now.time() >= time(8, 0)
 
     # Filtrowanie nowych danych
     filtered_new_data = {}
