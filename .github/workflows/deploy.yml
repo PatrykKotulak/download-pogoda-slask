@@ -5,8 +5,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 4 * * *'   # 06:00 Europe/Warsaw
-    - cron: '0 7 * * 0'   # 09:00 Europe/Warsaw sunday
+    - cron: '0 1 * * *'   # 03:00 Europe/Warsaw
+    - cron: '0 7 * * *'   # 09:00 Europe/Warsaw
     - cron: '0 19 * * *'  # 21:00 Europe/Warsaw
     - cron: '30 20 * * *' # 22:30 Europe/Warsaw
 

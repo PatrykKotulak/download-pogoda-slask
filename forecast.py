@@ -5,7 +5,6 @@ from datetime import datetime, timedelta, time
 import pytz
 from playwright.sync_api import sync_playwright
 
-# Ustawienia
 KEYWORDS = [
     "PONIEDZIAŁEK", "WTOREK", "ŚRODA", "CZWARTEK",
     "PIĄTEK", "SOBOTA", "NIEDZIELA", "NOC"
@@ -14,8 +13,8 @@ DATE_PATTERN = r"\[(\d{2}\.\d{2}\.\d{4})\]"
 FORECAST_FILE = "public/forecast.json"
 SHORT_FORECAST_FILE = "public/forecast_ha.json"
 
-# Mapowanie dni
 label_map = {
+    -1: "wczoraj_noc",
     0: "dzis",
     1: "jutro",
     2: "za_2_dni",
@@ -23,6 +22,13 @@ label_map = {
     4: "za_4_dni",
     5: "za_5_dni"
 }
+
+poland = pytz.timezone("Europe/Warsaw")
+now = datetime.now(poland)
+today = now.date()
+yesterday = today - timedelta(days=1)
+after_21 = now.time() >= time(21, 0)
+before_9 = now.time() < time(8, 0)
 
 def get_first_button_link(url):
     with sync_playwright() as p:
@@ -74,7 +80,7 @@ def extract_forecasts_by_date(url):
                 if last_date:
                     key = f"{last_date}N"
                 else:
-                    today_str = datetime.now().strftime("%d.%m.%Y")
+                    today_str = today.strftime("%d.%m.%Y")
                     key = f"{today_str}N"
                     last_date = today_str
             else:
@@ -89,12 +95,6 @@ def save_to_json(new_data, filename=FORECAST_FILE):
     def sort_key(k):
         return datetime.strptime(k.replace("N", ""), "%d.%m.%Y")
 
-    poland = pytz.timezone("Europe/Warsaw")
-    now = datetime.now(poland)
-    today = now.date()
-    after_21 = now.time() >= time(21, 0)
-
-    # Filtrowanie nowych danych
     filtered_new_data = {}
     for key, value in new_data.items():
         date_str = key.replace("N", "")
@@ -103,11 +103,18 @@ def save_to_json(new_data, filename=FORECAST_FILE):
         except ValueError:
             continue
 
+        # Pomijamy dzisiejszy dzień po 21:00
         if date_obj == today and after_21 and not key.endswith("N"):
-            continue  # pomijamy dzisiaj po 21:00 (dzien)
+            continue
+
+        # Wczoraj noc tylko przed 9:00
+        if key.endswith("N") and date_obj == yesterday and before_9:
+            filtered_new_data[key] = value
+            continue
+
         filtered_new_data[key] = value
 
-    # Wczytaj istniejące dane
+    # Wczytanie istniejących danych
     existing_data = {}
     if os.path.exists(filename):
         with open(filename, "r", encoding="utf-8") as f:
@@ -116,7 +123,7 @@ def save_to_json(new_data, filename=FORECAST_FILE):
             except json.JSONDecodeError:
                 pass
 
-    # Uzupełnij brakujące dane z forecast.json (z tym samym filtrem)
+    # Uzupełnienie brakujących danych
     for key, value in existing_data.items():
         if key in filtered_new_data:
             continue
@@ -128,13 +135,15 @@ def save_to_json(new_data, filename=FORECAST_FILE):
             continue
 
         if date_obj < today:
+            if key.endswith("N") and date_obj == yesterday and before_9:
+                filtered_new_data[key] = value
             continue
+
         if date_obj == today and after_21 and not key.endswith("N"):
             continue
 
         filtered_new_data[key] = value
 
-    # Zapisz scalone dane
     sorted_data = {k: filtered_new_data[k] for k in sorted(filtered_new_data.keys(), key=sort_key)}
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(sorted_data, f, ensure_ascii=False, indent=4)
@@ -144,26 +153,21 @@ def create_short_forecast(input_file=FORECAST_FILE, output_file=SHORT_FORECAST_F
         forecast_data = json.load(f)
 
     result = {}
-    for delta in range(6):
-        day = datetime.now().date() + timedelta(days=delta)
-        day_str = day.strftime("%d.%m.%Y")
-        base_label = label_map[delta]
-
-        # Dzień
-        value_day = forecast_data.get(day_str)
-        result[base_label] = value_day if value_day else "Brak danych"
-
-        # Noc
-        night_key = day_str + "N"
-        value_night = forecast_data.get(night_key)
-        result[base_label + "_noc"] = value_night if value_night else "Brak danych"
+    for delta, base_label in label_map.items():
+        if delta == -1:
+            night_key_yesterday = (today - timedelta(days=1)).strftime("%d.%m.%Y") + "N"
+            result[base_label] = forecast_data.get(night_key_yesterday, "Brak danych") if before_9 else "Brak danych"
+        else:
+            day = today + timedelta(days=delta)
+            day_str = day.strftime("%d.%m.%Y")
+            result[base_label] = forecast_data.get(day_str, "Brak danych")
+            result[base_label + "_noc"] = forecast_data.get(day_str + "N", "Brak danych")
 
     full_path = os.path.abspath(output_file)
-    print(f"Zapisuję plik forecast do: {full_path}")
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
 
-# main
+
 main_url = "https://pogodadlaslaska.pl/blog/prognoza-tygodniowa/"
 article_url = get_first_button_link(main_url)
 if article_url:
@@ -171,5 +175,4 @@ if article_url:
     if forecast_data:
         save_to_json(forecast_data)
 
-# ZAWSZE generuj skrócony forecast
 create_short_forecast()
