@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import requests
 from datetime import datetime, timedelta, time
 import pytz
 from playwright.sync_api import sync_playwright
@@ -12,6 +13,7 @@ KEYWORDS = [
 DATE_PATTERN = r"\[(\d{2}\.\d{2}\.\d{4})\]"
 FORECAST_FILE = "public/forecast.json"
 SHORT_FORECAST_FILE = "public/forecast_ha.json"
+FORECAST_URL = "https://patrykkotulak.github.io/download-pogoda-slask/forecast.json"
 
 label_map = {
     -1: "wczoraj_noc",
@@ -114,14 +116,14 @@ def save_to_json(new_data, filename=FORECAST_FILE):
 
         filtered_new_data[key] = value
 
-    # Wczytanie istniejących danych
+    # Wczytanie istniejących danych z URL
     existing_data = {}
-    if os.path.exists(filename):
-        with open(filename, "r", encoding="utf-8") as f:
-            try:
-                existing_data = json.load(f)
-            except json.JSONDecodeError:
-                pass
+    try:
+        response = requests.get(FORECAST_URL, timeout=10)
+        if response.ok:
+            existing_data = response.json()
+    except Exception:
+        pass
 
     # Uzupełnienie brakujących danych
     for key, value in existing_data.items():
@@ -166,7 +168,6 @@ def create_short_forecast(input_file=FORECAST_FILE, output_file=SHORT_FORECAST_F
     full_path = os.path.abspath(output_file)
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-
 
 main_url = "https://pogodadlaslaska.pl/blog/prognoza-tygodniowa/"
 article_url = get_first_button_link(main_url)
