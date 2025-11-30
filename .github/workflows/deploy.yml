@@ -35,7 +35,7 @@ jobs:
           playwright install
 
       - name: Run forecast script
-        run: python forecast.py
+        run: python src/main.py
 
       - name: Debug output
         run: |
