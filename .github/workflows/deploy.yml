@@ -6,8 +6,8 @@ on:
       - main
   schedule:
     - cron: '30 1 * * *'   # 02:30 Europe/Warsaw
-    - cron: '45 7 * * *'   # 08:45 Europe/Warsaw
-    - cron: '45 19 * * *'  # 20:45 Europe/Warsaw
+    - cron: '55 7 * * *'   # 08:55 Europe/Warsaw
+    - cron: '55 19 * * *'  # 20:55 Europe/Warsaw
     - cron: '0 21 * * *' # 22:00 Europe/Warsaw
 
 jobs:

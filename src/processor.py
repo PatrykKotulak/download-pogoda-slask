@@ -20,7 +20,7 @@ class ForecastProcessor:
         self.today = self.now.date()
         self.yesterday = self.today - timedelta(days=1)
         self.after_21 = self.now.time() >= time(21, 0)
-        self.before_9 = self.now.time() < time(8, 0)
+        self.before_9 = self.now.time() < time(9, 0)
 
     def _sort_key(self, key: str) -> datetime:
         """
