@@ -5,10 +5,10 @@ on:
     branches:
       - main
   schedule:
-    - cron: '30 0 * * *'   # 02:30 Europe/Warsaw
-    - cron: '55 6 * * *'   # 08:55 Europe/Warsaw
-    - cron: '55 18 * * *'  # 20:55 Europe/Warsaw
-    - cron: '0 20 * * *' # 22:00 Europe/Warsaw
+    - cron: '05 0 * * *'   # 02:05 Europe/Warsaw
+    - cron: '55 5 * * *'   # 07:55 Europe/Warsaw
+    - cron: '55 17 * * *'  # 19:55 Europe/Warsaw
+    - cron: '0 19 * * *' # 21:00 Europe/Warsaw
 
 jobs:
   build:
