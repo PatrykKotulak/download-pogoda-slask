@@ -6,7 +6,7 @@ on:
       - main
   schedule:
     - cron: '05 0 * * *'   # 02:05 Europe/Warsaw
-    - cron: '55 5 * * *'   # 07:55 Europe/Warsaw
+    - cron: '45 6 * * *'   # 08:45 Europe/Warsaw
     - cron: '55 17 * * *'  # 19:55 Europe/Warsaw
     - cron: '0 19 * * *' # 21:00 Europe/Warsaw
 
