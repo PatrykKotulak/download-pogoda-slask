@@ -31,8 +31,13 @@ class PogodaSlaskScraper:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
-            page.goto(url)
-            page.wait_for_selector('.elementor-button-link')
+            page.goto(
+                url,
+                wait_until="networkidle",
+                timeout=60000
+            )
+            page.wait_for_timeout(5000)
+            page.wait_for_selector('.elementor-button-link', timeout=60000)
             first_button = page.query_selector('.elementor-button-link')
             link = first_button.get_attribute('href') if first_button else None
             browser.close()
