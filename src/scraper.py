@@ -4,7 +4,11 @@ from datetime import datetime
 from typing import Optional, Dict
 
 import pytz
-from playwright.sync_api import sync_playwright, Page
+from playwright.sync_api import (
+    sync_playwright,
+    TimeoutError as PlaywrightTimeoutError
+)
+import time
 
 from config import KEYWORDS, DATE_PATTERN, MAIN_URL, TIMEZONE
 from utils import clean_forecast
@@ -31,17 +35,48 @@ class PogodaSlaskScraper:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
-            page.goto(
-                url,
-                wait_until="networkidle",
-                timeout=60000
-            )
-            page.wait_for_timeout(5000)
-            page.wait_for_selector('.elementor-button-link', timeout=60000)
-            first_button = page.query_selector('.elementor-button-link')
-            link = first_button.get_attribute('href') if first_button else None
+
+            for attempt in range(30):
+                try:
+                    page.goto(
+                        url,
+                        wait_until="networkidle",
+                        timeout=60000
+                    )
+
+                    page.wait_for_timeout(5000)
+
+                    page.wait_for_selector(
+                        ".elementor-button-link",
+                        state="attached",
+                        timeout=60000
+                    )
+
+                    first_button = page.query_selector(
+                        ".elementor-button-link"
+                    )
+
+                    link = (
+                        first_button.get_attribute("href")
+                        if first_button
+                        else None
+                    )
+
+                    if link:
+                        print(f"Found link after {attempt + 1} attempt(s)")
+                        browser.close()
+                        return link
+
+                except PlaywrightTimeoutError:
+                    pass
+
+                time.sleep(10)
+
             browser.close()
-            return link
+
+            raise Exception(
+                "Could not find .elementor-button-link after 30 attempts"
+            )
 
     def _extract_forecast_key(self, mark_text: str, last_date: Optional[str]) -> Optional[str]:
         """
