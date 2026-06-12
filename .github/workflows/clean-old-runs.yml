@@ -11,18 +11,7 @@ jobs:
     permissions:
       actions: write
     steps:
-      - name: Check token
-        run: |
-          if [ -z "$GH_PAT" ]; then
-            echo "Token is empty"
-            exit 1
-          fi
-
-          echo "Token length: ${#GH_PAT}"
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-          
-      - uses: igorjs/gh-actions-clean-workflow@v7
+      - uses: igorjs/gh-actions-clean-workflow@v6
         with:
           token: ${{ secrets.GH_PAT }}
           runs_older_than: 7 # optional
