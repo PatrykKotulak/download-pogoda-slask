@@ -1,0 +1,19 @@
+name: Usuwanie uruchomień starszych niż 7 dni
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Uruchamiaj codziennie o północy
+  workflow_dispatch: # Pozwala na ręczne uruchomienie w dowolnym momencie z zakładki Actions
+
+jobs:
+  clean-history:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write # Wymagane uprawnienia do usuwania logów
+    steps:
+      - name: Usuń stare uruchomienia
+        uses: AykutSarac/clean-workflow-runs@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          save_period: 7d # Zachowaj tylko uruchomienia z ostatnich 7 dni
+          retained_runs: 0 # Nie zachowuj żadnych minimalnych limitów (usuń wszystko powyżej 7 dni)
