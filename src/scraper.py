@@ -36,7 +36,7 @@ class PogodaSlaskScraper:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
 
-            for attempt in range(30):
+            for attempt in range(3):
                 try:
                     page.goto(
                         url,
