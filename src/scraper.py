@@ -36,7 +36,7 @@ class PogodaSlaskScraper:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
 
-            for attempt in range(3):
+            for attempt in range(5):
                 try:
                     page.goto(
                         url,
@@ -75,7 +75,7 @@ class PogodaSlaskScraper:
             browser.close()
 
             raise Exception(
-                "Could not find .elementor-button-link after 30 attempts"
+                "Could not find .elementor-button-link after 5 attempts"
             )
 
     def _extract_forecast_key(self, mark_text: str, last_date: Optional[str]) -> Optional[str]:
