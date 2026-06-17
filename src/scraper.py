@@ -27,9 +27,15 @@ class PogodaSlaskScraper:
     def get_first_button_link(self, url: str = MAIN_URL) -> Optional[str]:
         """Get the first article button link from the main page."""
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
+            browser = p.chromium.launch(
+                headless=True,
+                args=["-no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
+                )
             # Używamy context, aby zachować spójność sesji i ustawić User-Agent
-            context = browser.new_context(user_agent=USER_AGENT)
+            context = browser.new_context(user_agent=USER_AGENT,
+            viewport={"width": 1280, "height": 800},
+            extra_http_headers={"Accept-Language": "pl-PL,pl;q=0.9"},
+            )
             page = context.new_page()
 
             for attempt in range(1):
@@ -73,8 +79,14 @@ class PogodaSlaskScraper:
         last_key = None
 
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            context = browser.new_context(user_agent=USER_AGENT)
+            browser = p.chromium.launch(
+                headless=True,
+                args=["-no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
+                )
+            context = browser.new_context(user_agent=USER_AGENT,
+            viewport={"width": 1280, "height": 800},
+            extra_http_headers={"Accept-Language": "pl-PL,pl;q=0.9"},
+            )
             page = context.new_page()
             
             page.goto(url, wait_until="domcontentloaded", timeout=60000)
