@@ -43,6 +43,13 @@ jobs:
             sleep 120
           done
           exit 1
+      
+      - name: upload screensgot
+        uses: actions/upload-artifact@v4
+        if: failure
+        with:
+          name: debug-screenshots
+          path: error_attempt_*.png
 
       - name: Debug output
         run: |

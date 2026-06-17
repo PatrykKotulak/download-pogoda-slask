@@ -49,6 +49,7 @@ class PogodaSlaskScraper:
                         return link
 
                 except PlaywrightTimeoutError:
+                    page.screenshot(path=f'ferror_attempt_{attempt}.png')
                     print(f"Attempt {attempt + 1} failed, retrying...")
                     time.sleep(5) # Krótka przerwa przed ponowieniem
 
