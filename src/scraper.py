@@ -32,7 +32,7 @@ class PogodaSlaskScraper:
             context = browser.new_context(user_agent=USER_AGENT)
             page = context.new_page()
 
-            for attempt in range(5):
+            for attempt in range(1):
                 try:
                     # domcontentloaded jest szybsze i bardziej stabilne niż networkidle
                     page.goto(url, wait_until="domcontentloaded", timeout=60000)
@@ -49,7 +49,7 @@ class PogodaSlaskScraper:
                         return link
 
                 except PlaywrightTimeoutError:
-                    page.screenshot(path=f'ferror_attempt_{attempt}.png')
+                    page.screenshot(path=f'error_attempt_{attempt}.png')
                     print(f"Attempt {attempt + 1} failed, retrying...")
                     time.sleep(5) # Krótka przerwa przed ponowieniem
 
