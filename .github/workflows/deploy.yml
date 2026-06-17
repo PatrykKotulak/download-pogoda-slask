@@ -13,10 +13,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+  env:
+    FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repository (main branch)
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch forecast.json from gh-pages if it exists
         run: |
@@ -25,14 +27,15 @@ jobs:
           git show origin/gh-pages:forecast.json > forecast.json || echo "{}" > forecast.json
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          playwright install
+          playwright install chromium
+          playwright install-deps
 
       - name: Run forecast script with retry
         run: |
