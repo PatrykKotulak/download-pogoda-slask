@@ -46,7 +46,7 @@ jobs:
       
       - name: upload screensgot
         uses: actions/upload-artifact@v4
-        if: failure
+        if: failure()
         with:
           name: debug-screenshots
           path: error_attempt_*.png
