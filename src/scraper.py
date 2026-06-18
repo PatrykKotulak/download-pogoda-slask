@@ -8,6 +8,7 @@ from playwright.sync_api import (
     sync_playwright,
     TimeoutError as PlaywrightTimeoutError
 )
+from playwright_stealth import Stealth
 import time
 
 from config import KEYWORDS, DATE_PATTERN, MAIN_URL, TIMEZONE
@@ -15,6 +16,12 @@ from utils import clean_forecast
 
 # Stały User-Agent, aby być traktowanym jak przeglądarka użytkownika
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+LAUNCH_ARGS = ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
+CONTEXT_OPTS = {
+    "user_agent": USER_AGENT,
+    "viewport": {"width": 1280, "height": 800},
+    "extra_http_headers":{"Accept-Language": "pl-PL,pl;q=0.9"},
+}
 
 class PogodaSlaskScraper:
     """Scraper for extracting weather forecasts from pogodadlaslaska.pl."""
@@ -29,16 +36,14 @@ class PogodaSlaskScraper:
         with sync_playwright() as p:
             browser = p.chromium.launch(
                 headless=True,
-                args=["-no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
+                args=LAUNCH_ARGS,
                 )
             # Używamy context, aby zachować spójność sesji i ustawić User-Agent
-            context = browser.new_context(user_agent=USER_AGENT,
-            viewport={"width": 1280, "height": 800},
-            extra_http_headers={"Accept-Language": "pl-PL,pl;q=0.9"},
-            )
+            context = browser.new_context(**CONTEXT_OPTS)
             page = context.new_page()
+            Stealth().apply_stealth_sync(page)
 
-            for attempt in range(1):
+            for attempt in range(2):
                 try:
                     # domcontentloaded jest szybsze i bardziej stabilne niż networkidle
                     page.goto(url, wait_until="domcontentloaded", timeout=60000)
@@ -60,7 +65,7 @@ class PogodaSlaskScraper:
                     time.sleep(5) # Krótka przerwa przed ponowieniem
 
             browser.close()
-            raise Exception("Could not find .elementor-button-link after 5 attempts")
+            raise Exception("Could not find .elementor-button-link after 3 attempts")
 
     def _extract_forecast_key(self, mark_text: str, last_date: Optional[str]) -> Optional[str]:
         """Extract forecast key from marked text."""
@@ -81,15 +86,13 @@ class PogodaSlaskScraper:
         with sync_playwright() as p:
             browser = p.chromium.launch(
                 headless=True,
-                args=["-no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
+                args=LAUNCH_ARGS,
                 )
-            context = browser.new_context(user_agent=USER_AGENT,
-            viewport={"width": 1280, "height": 800},
-            extra_http_headers={"Accept-Language": "pl-PL,pl;q=0.9"},
-            )
+            context = browser.new_context(**CONTEXT_OPTS)
             page = context.new_page()
+            Stealth().apply_stealth_sync(page)
             
-            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.goto(url, wait_until="domcontentloaded", timeout=90000)
             page.wait_for_selector('.elementor-widget-container', state="visible")
 
             paragraphs = page.query_selector_all('.elementor-widget-container p')
